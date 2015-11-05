@@ -7,26 +7,23 @@
  * 
  * Has main function of the program, curse and sketchpad stuff
  */
-#include "main.h"
 
-//Pipe things
-const char exec_name[] = "java -jar Sketchpad.jar";
+//#define _XOPEN_SOURCE
+#include "main.h"
+#include "curse.h"
+
 
 int main(int argc, char * argv[])
 {
-	FILE *input;
-	FILE *executable;
+	iArgs input;
+	FILE *sketch;
 	
-	//Start message
-	startUp(argv[0]);
-		
-	//TODO handle gravity, trust and map inputs
+	//Read input and fill gravity, thrust, map
 	if (argv[1] != NULL)
 	{
-		printf("Input file: %s\n", argv[1]);
-		input = fopen(argv[1], "r");
+		input.map = fopen(argv[1], "r");
 		
-		if(input == NULL)
+		if(input.map == NULL)
 		{
 			printf( "Error opening file %s\n", argv[1]);
 			exit(EXIT_FAILURE);
@@ -38,18 +35,20 @@ int main(int argc, char * argv[])
 	}
 	
 	//Open pipe to sketchpad
-  	executable = popen(exec_name, "w");
-  	if (executable == NULL){
+  	sketch = popen(exec_name, "w");
+  	if (sketch == NULL){
     		fprintf(stderr, "Could not open pipe %s\n", exec_name);
    		exit(EXIT_FAILURE);
  	}
 	else{
-		//Call main code
-		//execute(input, executable);	
-		
-		fclose(input);
-		pclose(executable);
+		//TODO do stuff here
+		listenKeys();
+		fclose(input.map);
+		pclose(sketch);
 		exit(EXIT_SUCCESS);
-	}
+	}	
+
+
 	
 }
+

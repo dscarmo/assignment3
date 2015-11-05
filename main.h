@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <ncurses.h>
 
 //Sketchpad name
 const char exec_name[] = "java -jar Sketchpad.jar";
