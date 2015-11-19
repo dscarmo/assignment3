@@ -8,17 +8,20 @@
  * Main things
  */
 
+#ifndef _MAIN_H_
+#define _MAIN_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <ncurses.h>
+#include "curse.h"
+#include "lander.h"
 
 //Sketchpad name
 const char exec_name[] = "java -jar Sketchpad.jar";
 
-typedef struct inputArgs{
-	double gravity;
-	double thrust;
-	FILE *map;
-}iArgs;
 
+
+
+#endif

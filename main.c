@@ -10,7 +10,7 @@
 
 //#define _XOPEN_SOURCE
 #include "main.h"
-#include "curse.h"
+
 
 
 int main(int argc, char * argv[])
@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
  	}
 	else{
 		//TODO do stuff here
-		listenKeys();
+		listenKeys(sketch, input);
 		fclose(input.map);
 		pclose(sketch);
 		exit(EXIT_SUCCESS);

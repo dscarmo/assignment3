@@ -5,14 +5,45 @@
  * Student ID: 1484008
  * 
  * 
- * Curse 
+ * This handles input
  */
 
 #include "curse.h"
 
-int listenKeys(){
-	int running, c;
+//Debug move
+void moveShip(int *coords, FILE *sketch, int direction){
+	fprintf(sketch,"eraseSegment %d %d %d %d\n", coords[0], coords[1], coords[2], coords[3]);
+	fflush(sketch);		
 
+	switch(direction){
+		case 0:		
+			coords[1]+= 10;
+			coords[3]+= 10;
+			break;
+		case 1:
+			coords[0]-= 10;
+			coords[2]-= 10;
+			break;
+		case 2:
+			coords[0]+= 10;
+			coords[2]+= 10;
+			break;
+		case 3:
+			coords[1]-= 10;
+			coords[3]-= 10;
+			break; 
+	}
+
+	fprintf(sketch,"drawSegment %d %d %d %d\n", coords[0], coords[1], coords[2], coords[3]);
+	fflush(sketch);	
+}
+
+int listenKeys(FILE *sketch, iArgs input){
+	int running, c;
+	//int numOfLoops = 0;
+	int debugCoords[4] = {20, 20, 40, 40};
+	Ship ship;
+	
 	init_ncurses();
 
 	mvprintw( 5, 10, "Press any key to start." );
@@ -27,33 +58,46 @@ int listenKeys(){
 
 	running = 1;
 	
-	do {
-		c = getch();
-		if( c == ERR ) { continue; } // keep looping until we get input
+	//TODO define drawBackground
+	initializeShip (&ship);
+	fprintf(sketch,"drawSegment %d %d %d %d\n", debugCoords[0], debugCoords[1], debugCoords[2], debugCoords[3]);
+	fflush(sketch);
+	printw("background is drawn only one time\n");	
+	//drawBackground();	
 
-		// in asn3, won't need to do any printing to screen.
-		// instead, will rotate figure on left or right arrow keys, and
-		// initiate thrust when space bar is pressed.
+	do {
+		
+		c = getch();
+		
+		//TODO define update graphics
+		//updateGraphics();
+		if( c == ERR ) { continue; } // keep looping until we get input
+		
 		erase();
 		mvprintw( 5, 10, "Press arrow keys, 'q' to quit." );
 		move( 6, 10 );
 		switch( c ) {
 			case KEY_DOWN:
 				printw( "down key pressed" );
+				moveShip(debugCoords, sketch, 0);					
 				break;
 
 			case KEY_LEFT:
 				printw( "left key pressed" );
+				moveShip(debugCoords, sketch, 1);
 				break;
 
 			case KEY_RIGHT:
 				printw( "right key pressed" );
+				moveShip(debugCoords, sketch, 2);				
 				break;
 
 			case KEY_UP:
 				printw( "up key pressed" );
+				moveShip(debugCoords, sketch, 3);				
 				break;
 			case ' ':
+				//TODO define thrust things
 				printw("thrust used!");
 				break;
 			case 'q':
@@ -72,6 +116,8 @@ int listenKeys(){
 
 	return EXIT_SUCCESS;
 }
+
+
 
 void init_ncurses()
 {
