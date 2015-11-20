@@ -9,39 +9,11 @@
  */
 
 #include "curse.h"
-
 //Debug move
-void moveShip(int *coords, FILE *sketch, int direction){
-	fprintf(sketch,"eraseSegment %d %d %d %d\n", coords[0], coords[1], coords[2], coords[3]);
-	fflush(sketch);		
-
-	switch(direction){
-		case 0:		
-			coords[1]+= 10;
-			coords[3]+= 10;
-			break;
-		case 1:
-			coords[0]-= 10;
-			coords[2]-= 10;
-			break;
-		case 2:
-			coords[0]+= 10;
-			coords[2]+= 10;
-			break;
-		case 3:
-			coords[1]-= 10;
-			coords[3]-= 10;
-			break; 
-	}
-
-	fprintf(sketch,"drawSegment %d %d %d %d\n", coords[0], coords[1], coords[2], coords[3]);
-	fflush(sketch);	
-}
 
 int listenKeys(FILE *sketch, iArgs input){
 	int running, c;
-	//int numOfLoops = 0;
-	int debugCoords[4] = {20, 20, 40, 40};
+
 	Ship ship;
 	
 	init_ncurses();
@@ -60,9 +32,7 @@ int listenKeys(FILE *sketch, iArgs input){
 	
 	//TODO define drawBackground
 	initializeShip (&ship);
-	fprintf(sketch,"drawSegment %d %d %d %d\n", debugCoords[0], debugCoords[1], debugCoords[2], debugCoords[3]);
-	fflush(sketch);
-	printw("background is drawn only one time\n");	
+	drawShip(&ship, sketch);	
 	//drawBackground();	
 
 	do {
@@ -79,22 +49,22 @@ int listenKeys(FILE *sketch, iArgs input){
 		switch( c ) {
 			case KEY_DOWN:
 				printw( "down key pressed" );
-				moveShip(debugCoords, sketch, 0);					
+				moveShip(&ship, sketch, 0);					
 				break;
 
 			case KEY_LEFT:
 				printw( "left key pressed" );
-				moveShip(debugCoords, sketch, 1);
+				moveShip(&ship, sketch, 1);
 				break;
 
 			case KEY_RIGHT:
 				printw( "right key pressed" );
-				moveShip(debugCoords, sketch, 2);				
+				moveShip(&ship, sketch, 2);				
 				break;
 
 			case KEY_UP:
 				printw( "up key pressed" );
-				moveShip(debugCoords, sketch, 3);				
+				moveShip(&ship, sketch, 3);				
 				break;
 			case ' ':
 				//TODO define thrust things

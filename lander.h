@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 typedef struct inputArgs{
 	double gravity;
@@ -23,10 +24,15 @@ typedef struct inputArgs{
 typedef struct shipData{
 	int centerPos[2];	
 	int speed;
-	int *structure[2];
+	int structure[2][3];
 }Ship;
 
 
 void initializeShip (Ship *ship);	
+void moveShip(Ship *ship, FILE *sketch, int direction);
+void drawShip(Ship *ship, FILE *sketch);
+void eraseShip(Ship *ship, FILE *sketch);
+void recreateShip (Ship *ship);
+void rotateShip(Ship *ship, int direction);
 
 #endif

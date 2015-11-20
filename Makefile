@@ -6,7 +6,7 @@
 CFLAGS= -Wall -g
 
 main: main.o curse.o lander.o
-	gcc $(CFLAGS) main.o curse.o lander.o -o main -lncurses 
+	gcc $(CFLAGS) main.o curse.o lander.o -o main -lncurses -lm
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c	
@@ -15,7 +15,7 @@ curse.o: curse.c
 	gcc $(CFLAGS) -c curse.c -lncurses 	
 
 lander.o: lander.c
-	gcc $(CFLAGS) -c lander.c 	
+	gcc $(CFLAGS) -c lander.c -lm	
 
 
 tar:
