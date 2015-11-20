@@ -24,7 +24,7 @@ typedef struct inputArgs{
 typedef struct shipData{
 	int centerPos[2];	
 	int speed;
-	int structure[2][3];
+	double structure[2][3];
 }Ship;
 
 

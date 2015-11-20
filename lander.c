@@ -49,19 +49,22 @@ void adjust(Ship *ship, int i){
 
 void drawShip(Ship *ship, FILE *sketch){
 	//Triangle ship
-	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][0], ship -> structure[1][0], ship -> structure[0][1], ship -> structure[1][1]);
-	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][1], ship -> structure[1][1], ship -> structure[0][2], ship -> structure[1][2]);
-	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][2], ship -> structure[1][2], ship -> structure[0][0], ship -> structure[1][0]);
+	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
+	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
+	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
 	fflush(sketch);
 }
 
 void eraseShip(Ship *ship, FILE *sketch){	
-	fprintf(sketch,
-		"eraseSegment %d %d %d %d\n", ship -> structure[0][0], ship -> structure[1][0], ship -> structure[0][1], ship -> structure[1][1]);
-	fprintf(sketch,
-		"eraseSegment %d %d %d %d\n", ship -> structure[0][1], ship -> structure[1][1], ship -> structure[0][2], ship -> structure[1][2]);
-	fprintf(sketch,
-		"eraseSegment %d %d %d %d\n", ship -> structure[0][2], ship -> structure[1][2], ship -> structure[0][0], ship -> structure[1][0]);
+	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
+	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
+	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
 	fflush(sketch);	
 }
 
@@ -117,12 +120,12 @@ void rotateShip(Ship *ship, int direction){
 
 	for (i = 0; i < 3; i++)
 	{
-		x = (double)ship -> structure[0][i];
-		y = (double)ship -> structure[1][i];
+		x = ship -> structure[0][i];
+		y = ship -> structure[1][i];
 		rotated_x = x*cos(ar) - y*sin(ar);
 		rotated_y = x*sin(ar) + y*cos(ar);		
-		ship -> structure[0][i] = (int)rotated_x;
-		ship -> structure[1][i] = (int)rotated_y;
+		ship -> structure[0][i] = rotated_x;
+		ship -> structure[1][i] = rotated_y;
 	}
 	
 	//Go back
