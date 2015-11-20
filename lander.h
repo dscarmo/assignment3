@@ -34,5 +34,6 @@ void drawShip(Ship *ship, FILE *sketch);
 void eraseShip(Ship *ship, FILE *sketch);
 void recreateShip (Ship *ship);
 void rotateShip(Ship *ship, int direction);
+void drawLand(FILE* map, FILE *sketch);
 
 #endif

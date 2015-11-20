@@ -33,7 +33,7 @@ int listenKeys(FILE *sketch, iArgs input){
 	//TODO define drawBackground
 	initializeShip (&ship);
 	drawShip(&ship, sketch);	
-	//drawBackground();	
+	drawLand(input.map, sketch);	
 
 	do {
 		

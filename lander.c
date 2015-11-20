@@ -9,9 +9,9 @@
  */
 
 #define ROT_ANGLE 10
-#define SHIP_SIZE 5
-#define INIT_POS 20
-#define PI 3.1415
+#define SHIP_SIZE 10
+#define INIT_POS 50
+#define PI 3.14159265358979323846
 
 #include "lander.h"
 
@@ -31,15 +31,24 @@ void recreateShip (Ship *ship){
 	(ship -> structure)[0][0] = x;
 	(ship -> structure)[0][1] = x - SHIP_SIZE;
 	(ship -> structure)[0][2] = x + SHIP_SIZE;
-	(ship -> structure)[1][0] = y - 2*SHIP_SIZE;
+	(ship -> structure)[1][0] = y - SHIP_SIZE;
 	(ship -> structure)[1][1] = y + SHIP_SIZE;
 	(ship -> structure)[1][2] = y + SHIP_SIZE;
 	
 }
 
+void adjust(Ship *ship, int i){
+	//Stupid zeroing
+	(ship -> structure)[0][0] = (ship -> structure)[0][0];
+	(ship -> structure)[0][1] = (ship -> structure)[0][1] - i;
+	(ship -> structure)[0][2] = (ship -> structure)[0][2] + i;
+	(ship -> structure)[1][0] = (ship -> structure)[1][0] - i;
+	(ship -> structure)[1][1] = (ship -> structure)[1][1] + i;
+	(ship -> structure)[1][2] = (ship -> structure)[1][2] + i;
+}
+
 void drawShip(Ship *ship, FILE *sketch){
 	//Triangle ship
-	recreateShip(ship);
 	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][0], ship -> structure[1][0], ship -> structure[0][1], ship -> structure[1][1]);
 	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][1], ship -> structure[1][1], ship -> structure[0][2], ship -> structure[1][2]);
 	fprintf(sketch,"drawSegment %d %d %d %d\n", ship -> structure[0][2], ship -> structure[1][2], ship -> structure[0][0], ship -> structure[1][0]);
@@ -64,6 +73,7 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 		case 0:		
 			ship -> centerPos[0] += 0;
 			ship -> centerPos[1] += 10;
+			recreateShip(ship);
 			break;
 		case 1:
 			//ship -> centerPos[0] -= 10;
@@ -78,14 +88,25 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 		case 3:
 			ship -> centerPos[0] -= 0;
 			ship -> centerPos[1] -= 10;
+			recreateShip(ship);
 			break; 
 	}
 
 	drawShip(ship, sketch);	
 }
 
+
 void rotateShip(Ship *ship, int direction){
+	//TODO WHY IS IT SHRINKING?
+	//Translate to center rotate then translate back
 	int i = 0;
+	
+	for (i = 0; i < 3; i++)
+	{
+		ship -> structure[0][i] = ship -> structure[0][i] - ship -> centerPos[0];
+		ship -> structure[1][i] = ship -> structure[1][i] - ship -> centerPos[1];
+	}
+	
 	double ar;
 	if (direction == 1) 
 		ar = ROT_ANGLE * PI / 180.0;
@@ -96,13 +117,44 @@ void rotateShip(Ship *ship, int direction){
 
 	for (i = 0; i < 3; i++)
 	{
-		x = ship -> structure[0][i];
-		y = ship -> structure[1][i];
+		x = (double)ship -> structure[0][i];
+		y = (double)ship -> structure[1][i];
 		rotated_x = x*cos(ar) - y*sin(ar);
 		rotated_y = x*sin(ar) + y*cos(ar);		
-		ship -> structure[0][i] = rotated_x;
-		ship -> structure[1][i] = rotated_y;
+		ship -> structure[0][i] = (int)rotated_x;
+		ship -> structure[1][i] = (int)rotated_y;
 	}
-	//TODO REDEFINE 
+	
+	//Go back
+	for (i = 0; i < 3; i++)
+	{
+		ship -> structure[0][i] = ship -> structure[0][i] + ship -> centerPos[0];
+		ship -> structure[1][i] = ship -> structure[1][i] + ship -> centerPos[1];
+	}
 }
+
+void drawLand(FILE* map, FILE *sketch){
+	char line[255];
+	int x1, y1;
+	int x2, y2;
+	
+	//First line	
+	fgets(line, sizeof(line), map);
+	sscanf(line, "%d %d", &x1, &y1);
+			
+	while(!feof(map)){
+		fgets(line, sizeof(line), map);
+		
+		sscanf(line, "%d %d", &x2, &y2);
+		
+		fprintf(sketch, "drawSegment %d %d %d %d\n", x1, y1, x2, y2);
+		
+		x1 = x2;
+		y1 = y2;
+	
+	}
+	fflush(sketch);
+}
+
+
 
