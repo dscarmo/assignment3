@@ -5,7 +5,7 @@
  * Student ID: 1484008
  * 
  * 
- * Main things
+ * Main thingss
  */
 
 #ifndef _MAIN_H_
