@@ -8,11 +8,12 @@
  * This handles input
  */
 
+
 #include "curse.h"
 //Debug move
 
-int listenKeys(FILE *sketch, iArgs input){
-	int running, c;
+int startCurse(FILE *sketch, iArgs input){
+	int c;
 
 	Ship ship;
 	
@@ -27,59 +28,13 @@ int listenKeys(FILE *sketch, iArgs input){
 	erase();
 	mvprintw( 5, 10, "Press arrow keys, 'q' to quit." );
 	refresh();
-
-	running = 1;
 	
-	//TODO define drawBackground
 	initializeShip (&ship);
 	drawShip(&ship, sketch);	
 	drawLand(input.map, sketch);	
 
-	do {
-		
-		c = getch();
-		
-		//TODO define update graphics
-		//updateGraphics();
-		if( c == ERR ) { continue; } // keep looping until we get input
-		
-		erase();
-		mvprintw( 5, 10, "Press arrow keys, 'q' to quit." );
-		move( 6, 10 );
-		switch( c ) {
-			case KEY_DOWN:
-				printw( "down key pressed" );
-				moveShip(&ship, sketch, 0);					
-				break;
-
-			case KEY_LEFT:
-				printw( "left key pressed" );
-				moveShip(&ship, sketch, 1);
-				break;
-
-			case KEY_RIGHT:
-				printw( "right key pressed" );
-				moveShip(&ship, sketch, 2);				
-				break;
-
-			case KEY_UP:
-				printw( "up key pressed" );
-				moveShip(&ship, sketch, 3);				
-				break;
-			case ' ':
-				//TODO define thrust things
-				printw("thrust used!");
-				break;
-			case 'q':
-				running = 0;
-				break;
-
-			default:
-				// do nothing
-				break;
-		}
-		refresh();
-	} while( running );
+	
+	startTimer(&ship, sketch, input, &c);	
 
 	// must do this or else the terminal will be unusable
 	shutdown_ncurses();
@@ -87,7 +42,55 @@ int listenKeys(FILE *sketch, iArgs input){
 	return EXIT_SUCCESS;
 }
 
+int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
+		int status = 0;
+		*c = getch();
+		if( *c == ERR ) 
+		{  
+		} 
+		else {
+			erase();
+			mvprintw( 5, 10, "Press arrow keys, 'q' to quit." );
+			move( 6, 10 );
+			switch( *c ) {
+				case KEY_DOWN:
+					printw( "down key pressed" );
+					moveShip(ship, sketch, DOWN);					
+					break;
 
+				case KEY_LEFT:
+					printw( "left key pressed" );
+					moveShip(ship, sketch, LEFT);
+					break;
+
+				case KEY_RIGHT:
+					printw( "right key pressed" );
+					moveShip(ship, sketch, RIGHT);				
+					break;
+
+				case KEY_UP:
+					printw( "up key pressed" );
+					moveShip(ship, sketch, UP);				
+					break;
+				case ' ':
+					//TODO define thrust things
+					printw("thrust used!");
+					break;
+				case 'Q':
+				case 'q':
+					fprintf(sketch, "end");
+					status = 1;
+					//*running = 0;
+					break;
+
+				default:
+					// do nothing
+					break;
+			}
+		}
+		refresh();
+		return status;
+}
 
 void init_ncurses()
 {

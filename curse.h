@@ -17,9 +17,11 @@
 #include <assert.h>
 #include <ncurses.h>
 #include "lander.h"
+#include "timer.h"
 
-int listenKeys(FILE *sketch, iArgs input);
+int startCurse(FILE *sketch, iArgs input);
 void init_ncurses();
 void shutdown_ncurses();
+int listening(Ship *ship, FILE *sketch, iArgs input, int * c);
 
 #endif

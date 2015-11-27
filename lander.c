@@ -8,17 +8,13 @@
  * This and the .h has the game functions, such as drawing stuf and ship data
  */
 
-#define ROT_ANGLE 10
-#define SHIP_SIZE 10
-#define INIT_POS 50
-#define PI 3.14159265358979323846
-
 #include "lander.h"
 
 void initializeShip (Ship *ship){
 	ship -> centerPos[0] = INIT_POS;
 	ship -> centerPos[1] = INIT_POS;
 	ship -> speed = 0;
+	ship -> rotationAngle = 90;
 	
 	recreateShip(ship);
 }
@@ -35,16 +31,6 @@ void recreateShip (Ship *ship){
 	(ship -> structure)[1][1] = y + SHIP_SIZE;
 	(ship -> structure)[1][2] = y + SHIP_SIZE;
 	
-}
-
-void adjust(Ship *ship, int i){
-	//Stupid zeroing
-	(ship -> structure)[0][0] = (ship -> structure)[0][0];
-	(ship -> structure)[0][1] = (ship -> structure)[0][1] - i;
-	(ship -> structure)[0][2] = (ship -> structure)[0][2] + i;
-	(ship -> structure)[1][0] = (ship -> structure)[1][0] - i;
-	(ship -> structure)[1][1] = (ship -> structure)[1][1] + i;
-	(ship -> structure)[1][2] = (ship -> structure)[1][2] + i;
 }
 
 void drawShip(Ship *ship, FILE *sketch){
@@ -73,22 +59,20 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 
 	switch(direction){
 		//down, left, right, up
-		case 0:		
+		case DOWN:		
 			ship -> centerPos[0] += 0;
 			ship -> centerPos[1] += 10;
 			recreateShip(ship);
 			break;
-		case 1:
-			//ship -> centerPos[0] -= 10;
-			//ship -> centerPos[1] -= 0;
+		case LEFT:
+			ship -> rotationAngle -= ROT_ANGLE;
 			rotateShip(ship, 0);
 			break;
-		case 2:
-			//ship -> centerPos[0] += 10;
-			//ship -> centerPos[1] += 0;
+		case RIGHT:
+			ship -> rotationAngle += ROT_ANGLE;
 			rotateShip(ship, 1);
 			break;
-		case 3:
+		case UP:
 			ship -> centerPos[0] -= 0;
 			ship -> centerPos[1] -= 10;
 			recreateShip(ship);
@@ -100,7 +84,6 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 
 
 void rotateShip(Ship *ship, int direction){
-	//TODO WHY IS IT SHRINKING?
 	//Translate to center rotate then translate back
 	int i = 0;
 	

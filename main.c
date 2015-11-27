@@ -41,8 +41,7 @@ int main(int argc, char * argv[])
    		exit(EXIT_FAILURE);
  	}
 	else{
-		//TODO do stuff here
-		listenKeys(sketch, input);
+		startCurse(sketch, input);
 		fclose(input.map);
 		pclose(sketch);
 		exit(EXIT_SUCCESS);
