@@ -16,12 +16,14 @@
 #include <signal.h> // for signal handling
 #include <sys/time.h> // for the timer
 #include "curse.h"
+#include "intersec.h"
 
 // our signal handler function which will be called whenever the timer expires
+
 void handle_timeout( int signal );
 int startTimer(Ship *ship, FILE *sketch, iArgs input, int * c);
 void handle_timeout(int signal);
-//void example_of_blocking_a_signal();
+void criticalZone(Ship *ship, iArgs input, FILE *sketch);
 
 
 #endif

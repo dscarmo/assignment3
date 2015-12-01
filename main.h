@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 #include <ncurses.h>
 #include "curse.h"
 #include "lander.h"

@@ -10,19 +10,25 @@
 
 #include "lander.h"
 
+int rotationBuffer;
+
 void initializeShip (Ship *ship){
 	ship -> centerPos[0] = INIT_POS;
 	ship -> centerPos[1] = INIT_POS;
-	ship -> speed = 0;
+	ship -> xspeed = 0;
+	ship -> yspeed = 0;
+	ship -> xA = 0;
+	ship -> yA = 0;
 	ship -> rotationAngle = 90;
+	ship -> thrustOn = 0;
 	
 	recreateShip(ship);
 }
 
 void recreateShip (Ship *ship){
-	int x = ship -> centerPos[0];
-	int y = ship -> centerPos[1];
-
+	double x = ship -> centerPos[0];
+	double y = ship -> centerPos[1];
+	ship -> rotationAngle = 90;
 	
 	(ship -> structure)[0][0] = x;
 	(ship -> structure)[0][1] = x - SHIP_SIZE;
@@ -65,12 +71,12 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 			recreateShip(ship);
 			break;
 		case LEFT:
-			ship -> rotationAngle -= ROT_ANGLE;
-			rotateShip(ship, 0);
+			
+			rotateShip(ship, -ROT_ANGLE);
 			break;
 		case RIGHT:
-			ship -> rotationAngle += ROT_ANGLE;
-			rotateShip(ship, 1);
+
+			rotateShip(ship, ROT_ANGLE);
 			break;
 		case UP:
 			ship -> centerPos[0] -= 0;
@@ -82,11 +88,76 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 	drawShip(ship, sketch);	
 }
 
+void applyAccelerations(Ship *ship, iArgs input, FILE *sketch){
+	eraseShip(ship, sketch);
+	
+	double oldX = ship -> centerPos[0];
+	double oldY = ship -> centerPos[1];
+	
+	if (rotationBuffer != ship -> rotationAngle){
+		rotationBuffer = ship -> rotationAngle;
+	}
+	
+	double oldxV = ship -> xspeed;
+	double oldyV = ship -> yspeed;
+	double deltat = 0.05;
+	double thrust;
+	double ar = rotationBuffer * PI / 180.0;
+	
+	if (ship -> thrustOn){
+		thrust = input.thrust;
+	} else {
+		thrust = 0;
+	}
 
-void rotateShip(Ship *ship, int direction){
+	ship -> xA = thrust*cos(ar);
+	ship -> yA = -(input.gravity) + thrust*sin(ar);
+	
+	ship -> centerPos[0] = oldX + oldxV*deltat + (1/2)*(ship -> xA)*deltat*deltat;
+	ship -> centerPos[1] = oldY + oldyV*deltat + (1/2)*(ship -> yA)*deltat*deltat;
+	ship -> xspeed = oldxV - (ship -> xA)*deltat;
+	ship -> yspeed = oldyV - (ship -> yA)*deltat;
+	
+	checkBoundaries(ship);
+	recreateShip(ship);
+	
+	if (rotationBuffer != ship -> rotationAngle){
+		rotateShip(ship, rotationBuffer - 90);
+	}
+	
+	drawShip(ship, sketch);
+	//
+}
+
+
+void checkCollision(Ship *ship, iArgs input){
+	//Compare every line from ship structure with file input
+	//TODO
+	
+}
+
+void checkBoundaries(Ship *ship){
+	int x = ship -> centerPos[0];
+	int y = ship -> centerPos[1];
+	
+	if (x <= 0) 
+		x = 2;
+	if (y <= 0) 
+		y = 2;
+	if (x >= 640)
+		x = 638;
+	if (y >= 480)
+		y = 478;
+		
+	ship -> centerPos[0] = x;
+	ship -> centerPos[1] = y;
+		
+}
+
+void rotateShip(Ship *ship, int angle){
 	//Translate to center rotate then translate back
 	int i = 0;
-	
+	ship -> rotationAngle += angle;
 	for (i = 0; i < 3; i++)
 	{
 		ship -> structure[0][i] = ship -> structure[0][i] - ship -> centerPos[0];
@@ -94,10 +165,10 @@ void rotateShip(Ship *ship, int direction){
 	}
 	
 	double ar;
-	if (direction == 1) 
-		ar = ROT_ANGLE * PI / 180.0;
-	else 
-	 	ar = -ROT_ANGLE * PI / 180.0;
+	//if (direction == 1) 
+		ar = angle * PI / 180.0;
+	//else 
+	// 	ar = -angle * PI / 180.0;
 	double rotated_x, rotated_y;
 	double x, y;
 

@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 
+
 typedef struct inputArgs{
 	double gravity;
 	double thrust;
@@ -32,10 +33,12 @@ typedef struct inputArgs{
 }iArgs;
 
 typedef struct shipData{
-	int centerPos[2];	
-	int speed;
+	double centerPos[2];	
+	double xspeed, yspeed;
+	double xA, yA;
 	double structure[2][3];
-	int rotationAngle; 
+	int rotationAngle;
+	int thrustOn; 
 }Ship;
 
 
@@ -44,7 +47,10 @@ void moveShip(Ship *ship, FILE *sketch, int direction);
 void drawShip(Ship *ship, FILE *sketch);
 void eraseShip(Ship *ship, FILE *sketch);
 void recreateShip (Ship *ship);
-void rotateShip(Ship *ship, int direction);
+void checkCollision(Ship *ship, iArgs input);
+void applyAccelerations(Ship *ship, iArgs input, FILE *sketch);
+void rotateShip(Ship *ship, int angle);
+void checkBoundaries(Ship *ship);
 void drawLand(FILE* map, FILE *sketch);
 
 #endif

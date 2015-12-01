@@ -17,24 +17,32 @@ int main(int argc, char * argv[])
 {
 	iArgs input;
 	FILE *sketch;
+	int checkInput;
 	
-	//Read input and fill gravity, thrust, map
-	if (argv[1] != NULL)
-	{
-		input.map = fopen(argv[1], "r");
-		
-		if(input.map == NULL)
-		{
-			printf( "Error opening file %s\n", argv[1]);
-			exit(EXIT_FAILURE);
-		}
-				
-	} else {
-		printf("No Input file, exiting program.\n");
+	if (argc != 7){
+		printf("Incorrect number of arguments.\nExample: \"./main -g 9.8 -t -20 -f landscape.txt\"\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	//Open pipe to sketchpad
+	//Read input and fill gravity, thrust, map
+	input.gravity = atof(argv[2]);
+	input.thrust = atof(argv[4]);
+	input.map = fopen(argv[6], "r");
+	
+	for (checkInput = 0; checkInput < 7; checkInput++){
+		if (argv[checkInput] == NULL){
+			printf("Error reading input arguments, exiting.\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	
+	//Debug
+	printf("gravity: %f thrust: %f\n", input.gravity, input.thrust);
+	sleep(1);
+	//
+			
+	
+	//Open pipe to sketchpad and start program
   	sketch = popen(exec_name, "w");
   	if (sketch == NULL){
     		fprintf(stderr, "Could not open pipe %s\n", exec_name);
@@ -45,9 +53,6 @@ int main(int argc, char * argv[])
 		fclose(input.map);
 		pclose(sketch);
 		exit(EXIT_SUCCESS);
-	}	
-
-
-	
+	}		
 }
 

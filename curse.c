@@ -73,14 +73,24 @@ int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 					moveShip(ship, sketch, UP);				
 					break;
 				case ' ':
-					//TODO define thrust things
+					if (ship -> thrustOn){
+						ship -> thrustOn = 0;	
+					} else {
+						ship -> thrustOn = 1;
+					}
+					 
 					printw("thrust used!");
 					break;
 				case 'Q':
 				case 'q':
+					sleep(1);
 					fprintf(sketch, "end");
 					status = 1;
 					//*running = 0;
+					break;
+					
+				case 'r':
+					initializeShip(ship);
 					break;
 
 				default:
