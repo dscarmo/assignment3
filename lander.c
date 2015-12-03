@@ -130,10 +130,57 @@ void applyAccelerations(Ship *ship, iArgs input, FILE *sketch){
 }
 
 
-void checkCollision(Ship *ship, iArgs input){
+int checkCollision(Ship *ship, iArgs input){
 	//Compare every line from ship structure with file input
-	//TODO
+	double shipx[3];
+	double shipy[3];
+	MapStructure *mapStructure = input.mapStructure;
+	int n = mapStructure -> n;
+	double *mapx = malloc(n*sizeof(double));
+	double *mapy = malloc(n*sizeof(double));
+	double dumpResultx = 0;
+	double dumpResulty = 0;
 	
+	int i = 0;
+	
+	for (i = 0; i < 3; i++){
+		shipx[i] = ship -> structure[0][i];
+		shipy[i] = ship -> structure[1][i];
+		printf("ship points: %lf %lf\n", shipx[i], shipy[i]);
+	}
+	
+	for (i = 0; i < n; i++){
+		mapx[i] = (mapStructure -> x)[i];
+		mapy[i] = (mapStructure -> y)[i];
+		printf("map points: %lf %lf\n", mapx[i], mapy[i]);
+	}
+	
+	//Check collision for all possible lines
+	for (i = 0; i < n - 1; i++){
+		//line 1
+		if (lineSegmentIntersection(shipx[0], shipy[0], shipx[1], shipy[1], 
+						 	 mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
+						     &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+		
+		//line 2
+		else if (lineSegmentIntersection(shipx[1], shipy[1], shipx[2], shipy[2], 
+						 		  mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
+						 		  &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+		
+		//line 3
+		else if (lineSegmentIntersection(shipx[2], shipy[2], shipx[0], shipy[0], 
+						 		  mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
+						 		  &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+		
+	}
+	return freeAndQuit(mapx, mapy, 0, dumpResultx, dumpResulty);
+}
+
+int freeAndQuit(double *mapx, double *mapy, int returnValue, double resultx, double resulty){
+	if (returnValue) printf("Collision detected in %lf %lf\n", resultx, resulty);
+	free(mapx);
+	free(mapy);
+	return returnValue;
 }
 
 void checkBoundaries(Ship *ship){
@@ -141,13 +188,13 @@ void checkBoundaries(Ship *ship){
 	int y = ship -> centerPos[1];
 	
 	if (x <= 0) 
-		x = 2;
+		x = 10;
 	if (y <= 0) 
-		y = 2;
+		y = 10;
 	if (x >= 640)
-		x = 638;
+		x = 630;
 	if (y >= 480)
-		y = 478;
+		y = 470;
 		
 	ship -> centerPos[0] = x;
 	ship -> centerPos[1] = y;
@@ -190,27 +237,46 @@ void rotateShip(Ship *ship, int angle){
 	}
 }
 
-void drawLand(FILE* map, FILE *sketch){
+MapStructure *drawLand(FILE* map, FILE *sketch){
 	char line[255];
-	int x1, y1;
-	int x2, y2;
+	double x[100];
+	double y[100];
+	MapStructure *mapStructure = malloc(sizeof(MapStructure));
+	int n = 0;
+	int i = 0;
 	
-	//First line	
-	fgets(line, sizeof(line), map);
-	sscanf(line, "%d %d", &x1, &y1);
-			
-	while(!feof(map)){
-		fgets(line, sizeof(line), map);
-		
-		sscanf(line, "%d %d", &x2, &y2);
-		
-		fprintf(sketch, "drawSegment %d %d %d %d\n", x1, y1, x2, y2);
-		
-		x1 = x2;
-		y1 = y2;
-	
+	for (i = 0; i < 100; i++){
+		x[i] = 0;
+		y[i] = 0;
 	}
+	
+	//First storage land
+	i = 0;
+	fgets(line, sizeof(line), map);
+	sscanf(line, "%lf %lf", &x[i], &y[i]);
+	n++;		
+	while(!feof(map)){
+		i++;
+		fgets(line, sizeof(line), map);
+		sscanf(line, "%lf %lf", &x[i], &y[i]);
+		n++;
+	}
+	
+	//Copy to structure
+	mapStructure -> n = n;
+	for (i = 0; i < n; i++){
+		(mapStructure -> x)[i] = x[i];
+		(mapStructure -> y)[i] = y[i];
+	}
+	
+	
+	for (i = 0; i < n - 1; i++){
+		fprintf(sketch, "drawSegment %ld %ld %ld %ld\n", lround(x[i]), lround(y[i]), lround(x[i+1]), lround(y[i+1]));
+	}
+	
 	fflush(sketch);
+	
+	return mapStructure;
 }
 
 

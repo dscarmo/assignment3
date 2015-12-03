@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-bool lineIntersection(
+bool lineSegmentIntersection(
 double Ax, double Ay,
 double Bx, double By,
 double Cx, double Cy,

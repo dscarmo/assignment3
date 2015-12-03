@@ -30,9 +30,8 @@ int startCurse(FILE *sketch, iArgs input){
 	refresh();
 	
 	initializeShip (&ship);
-	drawShip(&ship, sketch);	
-	drawLand(input.map, sketch);	
-
+	drawShip(&ship, sketch);		
+	input.mapStructure = drawLand(input.map, sketch);	
 	
 	startTimer(&ship, sketch, input, &c);	
 

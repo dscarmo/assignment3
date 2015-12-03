@@ -24,13 +24,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "intersec.h"
 
+
+typedef struct tmapStructure{
+	double x[100];
+	double y[100];
+	int n;
+}MapStructure;
 
 typedef struct inputArgs{
 	double gravity;
 	double thrust;
 	FILE *map;
+	MapStructure *mapStructure;
 }iArgs;
+
 
 typedef struct shipData{
 	double centerPos[2];	
@@ -47,10 +56,12 @@ void moveShip(Ship *ship, FILE *sketch, int direction);
 void drawShip(Ship *ship, FILE *sketch);
 void eraseShip(Ship *ship, FILE *sketch);
 void recreateShip (Ship *ship);
-void checkCollision(Ship *ship, iArgs input);
+int checkCollision(Ship *ship, iArgs input);
 void applyAccelerations(Ship *ship, iArgs input, FILE *sketch);
 void rotateShip(Ship *ship, int angle);
 void checkBoundaries(Ship *ship);
-void drawLand(FILE* map, FILE *sketch);
-
+//void drawLand(FILE* map, FILE *sketch);
+//void drawLand(FILE* map, FILE *sketch, MapStructure *mapStructure);
+int freeAndQuit(double *mapx, double *mapy, int returnValue, double resultx, double resulty);
+MapStructure *drawLand(FILE* map, FILE *sketch);
 #endif

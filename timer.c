@@ -82,6 +82,7 @@ void handle_timeout(int signal)
 
 			printw( "%d second(s)\n", called/20 );
 		}
+		/*
 		if( called/20 == 60 ) {
 			struct itimerval timer;
 
@@ -99,6 +100,7 @@ void handle_timeout(int signal)
 			// notify the main program that we're done
 			g_finished = 1;
 		}
+		*/
 	}
 }
 
@@ -138,7 +140,10 @@ void criticalZone(Ship *ship, iArgs input, FILE *sketch)
 	// can call other functions here, and they will not be interrupted
 	// ...
 	applyAccelerations(ship, input, sketch);
-	//TODO check collision here
+	if (checkCollision(ship, input)){ 
+		printf("BOOM\n");
+		g_finished = 1;
+	}
 	
 	// unblock signal by setting mask to old value from before we added SIGALRM
 	if( sigprocmask( SIG_SETMASK, &old_mask, NULL ) < 0 ) {
