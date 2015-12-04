@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 	
 	//Read input and fill gravity, thrust, map
 	input.gravity = atof(argv[2]);
-	input.thrust = atof(argv[4]);
+	input.thrust = -atof(argv[4]);  //thrust inversion for my math to work
 	input.map = fopen(argv[6], "r");
 	
 	for (checkInput = 0; checkInput < 7; checkInput++){
@@ -35,14 +35,9 @@ int main(int argc, char * argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
-	
-	//Debug
-	printf("gravity: %f thrust: %f\n", input.gravity, input.thrust);
-	sleep(1);
-	//
 			
 	
-	//Open pipe to sketchpad and start program
+	//Open pipe to sketchpad and start program, calling startCurse in curse.c
   	sketch = popen(exec_name, "w");
   	if (sketch == NULL){
     		fprintf(stderr, "Could not open pipe %s\n", exec_name);
@@ -50,6 +45,8 @@ int main(int argc, char * argv[])
  	}
 	else{
 		startCurse(sketch, input);
+		fprintf(sketch, "end");
+		fflush(sketch);
 		fclose(input.map);
 		pclose(sketch);
 		exit(EXIT_SUCCESS);

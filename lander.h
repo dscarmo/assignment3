@@ -47,7 +47,8 @@ typedef struct shipData{
 	double xA, yA;
 	double structure[2][3];
 	int rotationAngle;
-	int thrustOn; 
+	int thrustOn;
+	int collision; 
 }Ship;
 
 
@@ -60,8 +61,7 @@ int checkCollision(Ship *ship, iArgs input);
 void applyAccelerations(Ship *ship, iArgs input, FILE *sketch);
 void rotateShip(Ship *ship, int angle);
 void checkBoundaries(Ship *ship);
-//void drawLand(FILE* map, FILE *sketch);
-//void drawLand(FILE* map, FILE *sketch, MapStructure *mapStructure);
-int freeAndQuit(double *mapx, double *mapy, int returnValue, double resultx, double resulty);
+int freeAndQuit(double *mapx, double *mapy, int returnValue);
 MapStructure *drawLand(FILE* map, FILE *sketch);
+void explode(Ship *ship, FILE *sketch);
 #endif

@@ -12,6 +12,8 @@
 
 int rotationBuffer;
 
+
+//Initializes data in ship structure
 void initializeShip (Ship *ship){
 	ship -> centerPos[0] = INIT_POS;
 	ship -> centerPos[1] = INIT_POS;
@@ -21,10 +23,12 @@ void initializeShip (Ship *ship){
 	ship -> yA = 0;
 	ship -> rotationAngle = 90;
 	ship -> thrustOn = 0;
+	ship -> collision = 0;
 	
 	recreateShip(ship);
 }
 
+//Recreates ship structure based on center point
 void recreateShip (Ship *ship){
 	double x = ship -> centerPos[0];
 	double y = ship -> centerPos[1];
@@ -37,29 +41,65 @@ void recreateShip (Ship *ship){
 	(ship -> structure)[1][1] = y + SHIP_SIZE;
 	(ship -> structure)[1][2] = y + SHIP_SIZE;
 	
+	
 }
 
+//Draws the ship structure and thrust if on
 void drawShip(Ship *ship, FILE *sketch){
 	//Triangle ship
 	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), 
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
 	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), 
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
 	fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), 
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
+	
+	//If thrust on
+	if (ship -> thrustOn){
+		fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1]), 
+		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1] + 4));
+		
+		
+		fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2]), 
+		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2] + 4));
+	}
+
 	fflush(sketch);
 }
 
+//Erases ship structure and thrust
 void eraseShip(Ship *ship, FILE *sketch){	
 	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]), 
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]));
 	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), 
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]));
 	fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), 
+		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
+
+	//If thrust on
+	if (ship -> thrustOn){
+		fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1]), 
+		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1] + 4));
+		
+		fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
+		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2]), 
+		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2] + 4));
+	}
+
 	fflush(sketch);	
 }
 
+
+//Handling of rotation and debug up and down movement (disabled in curse.c)
 void moveShip(Ship *ship, FILE *sketch, int direction){
 	eraseShip(ship, sketch);	
 
@@ -88,6 +128,11 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 	drawShip(ship, sketch);	
 }
 
+
+// IMPORTANT: using a positive value of thrust (if input is -10, at input parsing i
+//            changed it to +10). Thats why the formulas look a little different
+
+//Updates position of ship based on accelerations, called from timer.c critical zone
 void applyAccelerations(Ship *ship, iArgs input, FILE *sketch){
 	eraseShip(ship, sketch);
 	
@@ -125,11 +170,12 @@ void applyAccelerations(Ship *ship, iArgs input, FILE *sketch){
 		rotateShip(ship, rotationBuffer - 90);
 	}
 	
+
 	drawShip(ship, sketch);
 	//
 }
 
-
+//Checks for collision of the ship with ground, called from timer.c critical zone
 int checkCollision(Ship *ship, iArgs input){
 	//Compare every line from ship structure with file input
 	double shipx[3];
@@ -141,43 +187,53 @@ int checkCollision(Ship *ship, iArgs input){
 	double dumpResultx = 0;
 	double dumpResulty = 0;
 	
+	/*double lP1x = ship -> structure[0][1];
+	double lP1y = ship -> structure[1][1];
+
+	double lP2x = ship -> structure[0][2];
+	double lP2y = ship -> structure[1][2];
+	*/
 	int i = 0;
 	
 	for (i = 0; i < 3; i++){
 		shipx[i] = ship -> structure[0][i];
 		shipy[i] = ship -> structure[1][i];
-		printf("ship points: %lf %lf\n", shipx[i], shipy[i]);
 	}
 	
 	for (i = 0; i < n; i++){
 		mapx[i] = (mapStructure -> x)[i];
 		mapy[i] = (mapStructure -> y)[i];
-		printf("map points: %lf %lf\n", mapx[i], mapy[i]);
 	}
-	
+
+
+	//Check landed: bottom points of ship equal to some 
+		
+
 	//Check collision for all possible lines
 	for (i = 0; i < n - 1; i++){
 		//line 1
 		if (lineSegmentIntersection(shipx[0], shipy[0], shipx[1], shipy[1], 
 						 	 mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
-						     &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+						     &dumpResultx, &dumpResulty)) 
+			return freeAndQuit(mapx, mapy, 1);
 		
 		//line 2
 		else if (lineSegmentIntersection(shipx[1], shipy[1], shipx[2], shipy[2], 
 						 		  mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
-						 		  &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+						 		  &dumpResultx, &dumpResulty)) 
+			return freeAndQuit(mapx, mapy, 1);
 		
 		//line 3
 		else if (lineSegmentIntersection(shipx[2], shipy[2], shipx[0], shipy[0], 
 						 		  mapx[i], mapy[i], mapx[i+1], mapy[i+1], 
-						 		  &dumpResultx, &dumpResulty)) return freeAndQuit(mapx, mapy, 1, dumpResultx, dumpResulty);
+						 		  &dumpResultx, &dumpResulty)) 
+			return freeAndQuit(mapx, mapy, 1);
 		
 	}
-	return freeAndQuit(mapx, mapy, 0, dumpResultx, dumpResulty);
+	return freeAndQuit(mapx, mapy, 0);
 }
 
-int freeAndQuit(double *mapx, double *mapy, int returnValue, double resultx, double resulty){
-	if (returnValue) printf("Collision detected in %lf %lf\n", resultx, resulty);
+int freeAndQuit(double *mapx, double *mapy, int returnValue){
 	free(mapx);
 	free(mapy);
 	return returnValue;
@@ -193,8 +249,8 @@ void checkBoundaries(Ship *ship){
 		y = 10;
 	if (x >= 640)
 		x = 630;
-	if (y >= 480)
-		y = 470;
+	if (y >= 460)
+		y = 450;
 		
 	ship -> centerPos[0] = x;
 	ship -> centerPos[1] = y;
@@ -271,13 +327,49 @@ MapStructure *drawLand(FILE* map, FILE *sketch){
 	
 	
 	for (i = 0; i < n - 1; i++){
-		fprintf(sketch, "drawSegment %ld %ld %ld %ld\n", lround(x[i]), lround(y[i]), lround(x[i+1]), lround(y[i+1]));
+		fprintf(sketch, "drawSegment %ld %ld %ld %ld\n", lround(x[i]), lround(y[i]), lround(x[i+1]), 				lround(y[i+1]));
 	}
 	
 	fflush(sketch);
 	
 	return mapStructure;
 }
+
+void explode(Ship *ship, FILE *sketch){
+	int i, j;
+
+	for (i = 0; i < 2; i++)
+		for (j = 0; j < 3; j++)
+			ship -> structure[i][j] += (rand() % 40) - 20;	
+	
+	eraseShip(ship, sketch);	
+	drawShip(ship, sketch);
+
+	int wait = 0;	
+	while(wait < 100000000)
+		wait++;
+
+	
+	for (i = 0; i < 2; i++)
+		for (j = 0; j < 3; j++)
+			ship -> structure[i][j] += (rand() % 40) - 20;
+	
+	eraseShip(ship, sketch);	
+	drawShip(ship, sketch);
+
+	wait = 0;		
+	while(wait < 100000000)
+		wait++;
+
+	for (i = 0; i < 2; i++)
+		for (j = 0; j < 3; j++)
+			ship -> structure[i][j] += (rand() % 40) - 20;	
+	
+	eraseShip(ship, sketch);	
+	drawShip(ship, sketch);
+
+}
+
 
 
 

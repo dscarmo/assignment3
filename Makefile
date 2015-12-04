@@ -6,7 +6,7 @@
 CFLAGS= -Wall -g
 
 main: main.o curse.o lander.o timer.o intersec.o
-	gcc $(CFLAGS) main.o curse.o lander.o timer.o intersec.o -o main -lncurses -lm
+	gcc $(CFLAGS) main.o curse.o lander.o timer.o intersec.o -o lander -lncurses -lm
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c	
@@ -24,7 +24,7 @@ intersec.o: intersec.c
 	gcc $(CFLAGS) -c intersec.c -lm 
 
 tar:
-	tar cvf submit.tar main.c main.h Makefile
+	tar cvf submit.tar main.c main.h lander.c lander.h timer.c timer.h intersec.c intersec.h curse.c curse.h Makefile 
 
 clean:
-	-rm -f *.o main core
+	-rm -f *.o lander core

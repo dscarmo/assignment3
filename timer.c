@@ -5,7 +5,7 @@
  * Student ID: 1484008
  * 
  * 
- * Timer functions, 80% from professor material
+ * Timer functions, partly from professor material (A3Files)
  *
  *  
 */
@@ -13,10 +13,14 @@
 
 // global value which our signal handler will use to communicate we're finished
 static int g_finished = 0;
+
+//Global pointers for signal handler to access
 Ship *tship;
 iArgs inp;
 FILE *sket;
+int thrustTimer = 0;
 
+//Setups timer configurations and listens for keyboard in signals intervals
 int startTimer(Ship *ship, FILE *sketch, iArgs input, int * c)
 {
 	struct sigaction handler;
@@ -56,17 +60,17 @@ int startTimer(Ship *ship, FILE *sketch, iArgs input, int * c)
 
 	// loop until we're done
 	while( !g_finished ) {
-
 		g_finished = listening(ship, sketch, input, c);
-
+		
 	}
+
 
 	return( EXIT_SUCCESS );
 }
 
 
 
-//handler for SIGALRM.
+//handler for SIGALRM
 void handle_timeout(int signal)
 {
 	static int called = 0;
@@ -75,18 +79,26 @@ void handle_timeout(int signal)
 	if( signal == SIGALRM ) {
 
 		called++;
+
 		//Every 0.05 update ship
 		criticalZone(tship, inp, sket);
 
 		if (!(called%20)){
-
+			if (tship -> thrustOn){
+				thrustTimer++;
+				if (thrustTimer == 2){
+					tship -> thrustOn = 0;
+					thrustTimer = 0;				
+				}			
+			}
+			
 			printw( "%d second(s)\n", called/20 );
 		}
-		/*
-		if( called/20 == 60 ) {
+		
+		if( tship -> collision ) {
 			struct itimerval timer;
 
-			printf("time out!\n");
+			printw("You exploded!!! Press q to quit.\n");
 
 
 			timer.it_interval.tv_sec = 0;
@@ -100,51 +112,36 @@ void handle_timeout(int signal)
 			// notify the main program that we're done
 			g_finished = 1;
 		}
-		*/
+		
 	}
 }
 
 
-// critical code is code that must not be interrupted.  In your asn3,
-// examples will include code that updates global data structures, and
-// code that erases an old ship and draws a new ship (i.e., moves the
-// ship).
-//
-// The only way code can be interrupted in asn3 code is via our timer
-// (i.e., by SIGALRM).
-//
-// We protect critical code by blocking the signal.
-//
-// The following is just an example of signal blocking; there is not
-// critical code to block.
+
+//Critical zone code, partly from A3Files
 void criticalZone(Ship *ship, iArgs input, FILE *sketch)
 {
-	// signals we want to block (only SIGALM in our case)
 	sigset_t block_mask;
-	// set of previously blocked signals
 	sigset_t old_mask;
-
-	// set up set of signals to block: start with empty set, add SIGALRM
 	sigemptyset( &block_mask );
 	sigaddset( &block_mask, SIGALRM );
-	// NOTE: more complicated code might start by calling sigprocmask to
-	// get the current blocked signals and adding the new signal
 
-	// set blocked signal set to block_mask (man 2 sigprocmask) to block SIGALRM.
-	// returns previously blocked signals in old_mask.
+	// blocks signal
 	if( sigprocmask( SIG_BLOCK, &block_mask, &old_mask ) < 0 ) {
 		exit( EXIT_FAILURE );
 	}
 
-	// CRITICAL CODE GOES HERE
-	// can call other functions here, and they will not be interrupted
-	// ...
+	// CRITICAL CODE GOES
 	applyAccelerations(ship, input, sketch);
 	if (checkCollision(ship, input)){ 
-		printf("BOOM\n");
-		g_finished = 1;
+		if (ship -> yspeed > 30){ 
+			ship -> collision = 1;		
+			explode(tship, sket);
+		}
+		else printw("You landed!");
 	}
-	
+	//
+
 	// unblock signal by setting mask to old value from before we added SIGALRM
 	if( sigprocmask( SIG_SETMASK, &old_mask, NULL ) < 0 ) {
 		exit( EXIT_FAILURE );

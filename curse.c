@@ -10,8 +10,8 @@
 
 
 #include "curse.h"
-//Debug move
 
+//Setups curse stuff and starts timer (in timer.c)
 int startCurse(FILE *sketch, iArgs input){
 	int c;
 
@@ -41,6 +41,7 @@ int startCurse(FILE *sketch, iArgs input){
 	return EXIT_SUCCESS;
 }
 
+//Listen for keyboard strokes (called from timer.c)
 int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 		int status = 0;
 		*c = getch();
@@ -53,43 +54,44 @@ int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 			move( 6, 10 );
 			switch( *c ) {
 				case KEY_DOWN:
-					printw( "down key pressed" );
-					moveShip(ship, sketch, DOWN);					
+										
 					break;
 
 				case KEY_LEFT:
-					printw( "left key pressed" );
-					moveShip(ship, sketch, LEFT);
+					if (ship -> collision)
+						printw("You crashed!");
+					else 
+						moveShip(ship, sketch, LEFT);
 					break;
 
 				case KEY_RIGHT:
-					printw( "right key pressed" );
-					moveShip(ship, sketch, RIGHT);				
+					if (ship -> collision)
+						printw("You crashed!");
+					else 
+						moveShip(ship, sketch, RIGHT);				
 					break;
 
 				case KEY_UP:
-					printw( "up key pressed" );
-					moveShip(ship, sketch, UP);				
+									
 					break;
 				case ' ':
-					if (ship -> thrustOn){
-						ship -> thrustOn = 0;	
-					} else {
-						ship -> thrustOn = 1;
+					if (ship -> collision)
+						printw("You crashed!");
+					else{ 
+						if (ship -> thrustOn){
+							ship -> thrustOn = 0;	
+						} else {
+							ship -> thrustOn = 1;
+						}
+						printw("thrust used!");					 
 					}
-					 
-					printw("thrust used!");
+					
 					break;
 				case 'Q':
 				case 'q':
+					printw("Closing...");
 					sleep(1);
-					fprintf(sketch, "end");
 					status = 1;
-					//*running = 0;
-					break;
-					
-				case 'r':
-					initializeShip(ship);
 					break;
 
 				default:
@@ -101,6 +103,7 @@ int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 		return status;
 }
 
+//Init curses copied from A3 files.
 void init_ncurses()
 {
 	int r;
