@@ -59,14 +59,14 @@ int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 
 				case KEY_LEFT:
 					if (ship -> collision)
-						printw("You crashed!");
+						printw("You cant move!");
 					else 
 						moveShip(ship, sketch, LEFT);
 					break;
 
 				case KEY_RIGHT:
 					if (ship -> collision)
-						printw("You crashed!");
+						printw("You cant move!");
 					else 
 						moveShip(ship, sketch, RIGHT);				
 					break;
@@ -76,10 +76,10 @@ int listening(Ship *ship, FILE *sketch, iArgs input, int * c){
 					break;
 				case ' ':
 					if (ship -> collision)
-						printw("You crashed!");
+						printw("You cant move!");
 					else{ 
 						if (ship -> thrustOn){
-							ship -> thrustOn = 0;	
+							;	
 						} else {
 							ship -> thrustOn = 1;
 						}

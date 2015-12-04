@@ -135,10 +135,11 @@ void criticalZone(Ship *ship, iArgs input, FILE *sketch)
 	applyAccelerations(ship, input, sketch);
 	if (checkCollision(ship, input)){ 
 		if (ship -> yspeed > 30){ 
-			ship -> collision = 1;		
+				
 			explode(tship, sket);
 		}
 		else printw("You landed!");
+		ship -> collision = 1;	
 	}
 	//
 
