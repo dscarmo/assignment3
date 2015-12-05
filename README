@@ -15,7 +15,7 @@ My improvements:
 
 -Ship speed report every second
 -Ship explosion
--Boundaries make the ship go back instead of being stuck 
+-Boundaries make the ship go back or go to the other side instead of being stuck 
 
 
 The timer and curse codes where based around the codes given by the professor (test_curses and timer.c)

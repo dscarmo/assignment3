@@ -46,7 +46,9 @@ typedef struct shipData{
 	double xspeed, yspeed;
 	double xA, yA;
 	double structure[2][3];
+	double thrustPoints[2];
 	int rotationAngle;
+	double rotateVector[2];
 	int thrustOn;
 	int collision; 
 }Ship;

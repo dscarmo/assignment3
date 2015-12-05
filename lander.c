@@ -25,6 +25,10 @@ void initializeShip (Ship *ship){
 	ship -> thrustOn = 0;
 	ship -> collision = 0;
 	
+	
+	ship -> thrustPoints[0] = INIT_POS;
+	ship -> thrustPoints[1] = INIT_POS + 20;  
+
 	recreateShip(ship);
 }
 
@@ -41,6 +45,9 @@ void recreateShip (Ship *ship){
 	(ship -> structure)[1][1] = y + SHIP_SIZE;
 	(ship -> structure)[1][2] = y + SHIP_SIZE;
 	
+	ship -> thrustPoints[0] = x;
+	ship -> thrustPoints[1] = y + 20;
+
 	
 }
 
@@ -60,13 +67,13 @@ void drawShip(Ship *ship, FILE *sketch){
 	//If thrust on
 	if (ship -> thrustOn){
 		fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1]), 
-		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1] + 4));
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), 
+		lround(ship -> thrustPoints[0]), lround(ship -> thrustPoints[1]));
 		
 		
 		fprintf(sketch,"drawSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2]), 
-		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2] + 4));
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), 
+		lround(ship -> thrustPoints[0]), lround(ship -> thrustPoints[1]));
 	}
 
 	fflush(sketch);
@@ -84,16 +91,16 @@ void eraseShip(Ship *ship, FILE *sketch){
 		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), 
 		lround(ship -> structure[0][0]), lround(ship -> structure[1][0]));
 
-	//If thrust on
-	if (ship -> thrustOn){
+	
 		fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1]), 
-		lround(ship -> structure[0][1] + 2), lround(ship -> structure[1][1] + 4));
+		lround(ship -> structure[0][1]), lround(ship -> structure[1][1]), 
+		lround(ship -> thrustPoints[0]), lround(ship -> thrustPoints[1]));
+		
 		
 		fprintf(sketch,"eraseSegment %ld %ld %ld %ld\n", 
-		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2]), 
-		lround(ship -> structure[0][2] - 2), lround(ship -> structure[1][2] + 4));
-	}
+		lround(ship -> structure[0][2]), lround(ship -> structure[1][2]), 
+		lround(ship -> thrustPoints[0]), lround(ship -> thrustPoints[1]));
+	
 
 	fflush(sketch);	
 }
@@ -238,11 +245,11 @@ void checkBoundaries(Ship *ship){
 	int y = ship -> centerPos[1];
 	
 	if (x <= 0) 
-		x = 10;
+		x = 639;
 	if (y <= 0) 
-		y = 10;
+		y = 1;
 	if (x >= 640)
-		x = 630;
+		x = 1;
 	if (y >= 460)
 		y = 450;
 		
@@ -254,21 +261,25 @@ void checkBoundaries(Ship *ship){
 void rotateShip(Ship *ship, int angle){
 	//Translate to center rotate then translate back
 	int i = 0;
+	double ar;
+	ar = angle * PI / 180.0;
+	
+	double rotated_x, rotated_y;
+	double x, y;
+
 	ship -> rotationAngle += angle;
 	for (i = 0; i < 3; i++)
 	{
 		ship -> structure[0][i] = ship -> structure[0][i] - ship -> centerPos[0];
 		ship -> structure[1][i] = ship -> structure[1][i] - ship -> centerPos[1];
 	}
-	
-	double ar;
-	//if (direction == 1) 
-		ar = angle * PI / 180.0;
-	//else 
-	// 	ar = -angle * PI / 180.0;
-	double rotated_x, rotated_y;
-	double x, y;
+	ship -> thrustPoints[0] = ship -> thrustPoints[0] - ship -> centerPos[0] - 10*cos(ar);
+	ship -> thrustPoints[1] = ship -> thrustPoints[1] - ship -> centerPos[1] - 10*sin(ar);
 
+	
+
+
+	//Ship rot
 	for (i = 0; i < 3; i++)
 	{
 		x = ship -> structure[0][i];
@@ -278,6 +289,16 @@ void rotateShip(Ship *ship, int angle){
 		ship -> structure[0][i] = rotated_x;
 		ship -> structure[1][i] = rotated_y;
 	}
+
+	//Thrust Rot
+	
+		x = ship -> thrustPoints[0];
+		y = ship -> thrustPoints[1];
+		rotated_x = x*cos(ar) - y*sin(ar);
+		rotated_y = x*sin(ar) + y*cos(ar);		
+		ship -> thrustPoints[0] = rotated_x;
+		ship -> thrustPoints[1] = rotated_y;
+	
 	
 	//Go back
 	for (i = 0; i < 3; i++)
@@ -285,6 +306,8 @@ void rotateShip(Ship *ship, int angle){
 		ship -> structure[0][i] = ship -> structure[0][i] + ship -> centerPos[0];
 		ship -> structure[1][i] = ship -> structure[1][i] + ship -> centerPos[1];
 	}
+	ship -> thrustPoints[0] = ship -> thrustPoints[0] + ship -> centerPos[0] + 10*cos(ar);
+	ship -> thrustPoints[1] = ship -> thrustPoints[1] + ship -> centerPos[1] + 10*sin(ar);
 }
 
 MapStructure *drawLand(FILE* map, FILE *sketch){
@@ -321,9 +344,9 @@ MapStructure *drawLand(FILE* map, FILE *sketch){
 	
 	//Draw boundaries
 	fprintf(sketch, "drawSegment %d %d %d %d\n", 0, 0, 635, 0); // --
-	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 0, 635, 455); // |
-	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 455, 0, 455); // --
-	fprintf(sketch, "drawSegment %d %d %d %d\n", 0, 455, 0, 0); // |	
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 0, 635, 450); // |
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 450, 0, 450); // --
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 0, 450, 0, 0); // |	
 
 	//Draw stored
 	for (i = 0; i < n - 1; i++){
@@ -338,7 +361,7 @@ MapStructure *drawLand(FILE* map, FILE *sketch){
 void explode(Ship *ship, FILE *sketch){
 	int i, j, k;
 
-	for (j = 0; k < 5; k++){
+	for (k = 0; k < 5; k++){
 		for (i = 0; i < 2; i++)
 			for (j = 0; j < 3; j++)
 				ship -> structure[i][j] += (rand() % 40) - 20;	

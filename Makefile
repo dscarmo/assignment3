@@ -24,7 +24,7 @@ intersec.o: intersec.c
 	gcc $(CFLAGS) -c intersec.c -lm 
 
 tar:
-	tar cvf submit.tar main.c main.h lander.c lander.h timer.c timer.h intersec.c intersec.h curse.c curse.h Makefile 
+	tar cvf submit.tar main.c main.h lander.c lander.h timer.c timer.h intersec.c intersec.h curse.c curse.h Makefile README Sketchpad.jar landscape.txt
 
 clean:
 	-rm -f *.o lander core

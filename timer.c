@@ -87,7 +87,7 @@ void handle_timeout(int signal)
 				thrustTimer++;
 				if (thrustTimer == 1){
 					tship -> thrustOn = 0;
-					thrustTimer = 0;				
+					thrustTimer = 0;			
 				}			
 			}
 			
@@ -132,8 +132,8 @@ void criticalZone(Ship *ship, iArgs input, FILE *sketch)
 
 	// CRITICAL CODE GOES
 	if (checkCollision(ship, input)){ 
-		if (ship -> yspeed > 40 || ship -> xspeed > 20){ 
-			printw("Collision speed x:%.2lf y:%.2lf, try to go slower!\n", ship -> xspeed, ship -> yspeed);
+		if (ship -> yspeed > 40 || ship -> xspeed > 20 || ship -> rotationAngle != 90){ 
+			printw("\nCollision speed x:%.2lf y:%.2lf, try to go slower and point your ship up!\n\n", ship -> xspeed, ship -> yspeed);
 			explode(tship, sket);
 			ship -> collision = 1;
 			
