@@ -18,7 +18,7 @@
 
 #define ROT_ANGLE 10
 #define SHIP_SIZE 10
-#define INIT_POS 50
+#define INIT_POS 320
 #define PI 3.14159265358979323846
 
 #include <stdlib.h>

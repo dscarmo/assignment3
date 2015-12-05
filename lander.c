@@ -16,7 +16,7 @@ int rotationBuffer;
 //Initializes data in ship structure
 void initializeShip (Ship *ship){
 	ship -> centerPos[0] = INIT_POS;
-	ship -> centerPos[1] = INIT_POS;
+	ship -> centerPos[1] = INIT_POS - 280;
 	ship -> xspeed = 0;
 	ship -> yspeed = 0;
 	ship -> xA = 0;
@@ -129,7 +129,7 @@ void moveShip(Ship *ship, FILE *sketch, int direction){
 }
 
 
-// IMPORTANT: using a positive value of thrust (if input is -10, at input parsing i
+// IMPORTANT: using a positive value of thrust here (if input is -10, at input parsing i
 //            changed it to +10). Thats why the formulas look a little different
 
 //Updates position of ship based on accelerations, called from timer.c critical zone
@@ -187,12 +187,6 @@ int checkCollision(Ship *ship, iArgs input){
 	double dumpResultx = 0;
 	double dumpResulty = 0;
 	
-	/*double lP1x = ship -> structure[0][1];
-	double lP1y = ship -> structure[1][1];
-
-	double lP2x = ship -> structure[0][2];
-	double lP2y = ship -> structure[1][2];
-	*/
 	int i = 0;
 	
 	for (i = 0; i < 3; i++){
@@ -325,9 +319,15 @@ MapStructure *drawLand(FILE* map, FILE *sketch){
 		(mapStructure -> y)[i] = y[i];
 	}
 	
-	
+	//Draw boundaries
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 0, 0, 635, 0); // --
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 0, 635, 455); // |
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 635, 455, 0, 455); // --
+	fprintf(sketch, "drawSegment %d %d %d %d\n", 0, 455, 0, 0); // |	
+
+	//Draw stored
 	for (i = 0; i < n - 1; i++){
-		fprintf(sketch, "drawSegment %ld %ld %ld %ld\n", lround(x[i]), lround(y[i]), lround(x[i+1]), 				lround(y[i+1]));
+		fprintf(sketch, "drawSegment %ld %ld %ld %ld\n", lround(x[i]), lround(y[i]), lround(x[i+1]), lround(y[i+1]));
 	}
 	
 	fflush(sketch);
@@ -336,38 +336,18 @@ MapStructure *drawLand(FILE* map, FILE *sketch){
 }
 
 void explode(Ship *ship, FILE *sketch){
-	int i, j;
+	int i, j, k;
 
-	for (i = 0; i < 2; i++)
-		for (j = 0; j < 3; j++)
-			ship -> structure[i][j] += (rand() % 40) - 20;	
+	for (j = 0; k < 5; k++){
+		for (i = 0; i < 2; i++)
+			for (j = 0; j < 3; j++)
+				ship -> structure[i][j] += (rand() % 40) - 20;	
 	
-	eraseShip(ship, sketch);	
-	drawShip(ship, sketch);
+		eraseShip(ship, sketch);	
+		drawShip(ship, sketch);
 
-	int wait = 0;	
-	while(wait < 100000000)
-		wait++;
-
+	}
 	
-	for (i = 0; i < 2; i++)
-		for (j = 0; j < 3; j++)
-			ship -> structure[i][j] += (rand() % 40) - 20;
-	
-	eraseShip(ship, sketch);	
-	drawShip(ship, sketch);
-
-	wait = 0;		
-	while(wait < 100000000)
-		wait++;
-
-	for (i = 0; i < 2; i++)
-		for (j = 0; j < 3; j++)
-			ship -> structure[i][j] += (rand() % 40) - 20;	
-	
-	eraseShip(ship, sketch);	
-	drawShip(ship, sketch);
-
 }
 
 

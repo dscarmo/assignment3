@@ -23,18 +23,26 @@ int main(int argc, char * argv[])
 		printf("Incorrect number of arguments.\nExample: \"./main -g 9.8 -t -20 -f landscape.txt\"\n");
 		exit(EXIT_FAILURE);
 	}
-	
-	//Read input and fill gravity, thrust, map
-	input.gravity = atof(argv[2]);
-	input.thrust = -atof(argv[4]);  //thrust inversion for my math to work
-	input.map = fopen(argv[6], "r");
-	
+
 	for (checkInput = 0; checkInput < 7; checkInput++){
 		if (argv[checkInput] == NULL){
 			printf("Error reading input arguments, exiting.\n");
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	//Read input and fill gravity, thrust, map
+	input.gravity = atof(argv[2]);
+	input.thrust = -atof(argv[4]);  //thrust inversion for my math to work
+	
+	if (exists(argv[6]))	
+		input.map = fopen(argv[6], "r");
+	else{
+		printf("Error opening map file, check for the name and if it exists!\n");
+		exit(EXIT_FAILURE);
+	}
+		
+	
 			
 	
 	//Open pipe to sketchpad and start program, calling startCurse in curse.c
@@ -51,5 +59,16 @@ int main(int argc, char * argv[])
 		pclose(sketch);
 		exit(EXIT_SUCCESS);
 	}		
+}
+
+int exists(const char *fname)
+{
+    FILE *file;
+    if ((file = fopen(fname, "r")))
+    {
+        fclose(file);
+        return 1;
+    }
+    return 0;
 }
 

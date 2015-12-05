@@ -80,26 +80,22 @@ void handle_timeout(int signal)
 
 		called++;
 
-		//Every 0.05 update ship
-		criticalZone(tship, inp, sket);
+		
 
 		if (!(called%20)){
 			if (tship -> thrustOn){
 				thrustTimer++;
-				if (thrustTimer == 2){
+				if (thrustTimer == 1){
 					tship -> thrustOn = 0;
 					thrustTimer = 0;				
 				}			
 			}
 			
-			printw( "%d second(s)\n", called/20 );
+			printw( "%d second(s) - Speed: x %.1lf y %.1lf\n", called/20, tship -> xspeed, tship -> yspeed);
 		}
 		
-		if( tship -> collision ) {
+		if( (tship -> collision) > 0 ) {
 			struct itimerval timer;
-
-			printw("You exploded!!! Press q to quit.\n");
-
 
 			timer.it_interval.tv_sec = 0;
 			timer.it_interval.tv_usec = 0;
@@ -112,6 +108,9 @@ void handle_timeout(int signal)
 			// notify the main program that we're done
 			g_finished = 1;
 		}
+
+		//Every 0.05 update ship
+		criticalZone(tship, inp, sket);
 		
 	}
 }
@@ -132,15 +131,20 @@ void criticalZone(Ship *ship, iArgs input, FILE *sketch)
 	}
 
 	// CRITICAL CODE GOES
-	applyAccelerations(ship, input, sketch);
 	if (checkCollision(ship, input)){ 
-		if (ship -> yspeed > 30){ 
-				
+		if (ship -> yspeed > 40 || ship -> xspeed > 20){ 
+			printw("Collision speed x:%.2lf y:%.2lf, try to go slower!\n", ship -> xspeed, ship -> yspeed);
 			explode(tship, sket);
+			ship -> collision = 1;
+			
 		}
-		else printw("You landed!");
-		ship -> collision = 1;	
-	}
+		else {
+			printw("You landed!");
+			ship -> collision = 2;
+				
+		}
+	} 
+	else applyAccelerations(ship, input, sketch);
 	//
 
 	// unblock signal by setting mask to old value from before we added SIGALRM

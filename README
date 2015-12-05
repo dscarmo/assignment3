@@ -1,0 +1,25 @@
+README
+
+* Assignment 3, CMPUT 201, FALL 2015
+ * 
+ * Student Name: Diedre Santos do Carmo
+ * Student ID: 1484008
+
+
+
+This is the lander program for assignment 3.
+It does almost everything the sample lander program does (kind of worse thrust animations).
+
+My improvements:
+
+
+-Ship speed report every second
+-Ship explosion
+-Boundaries make the ship go back instead of being stuck 
+
+
+The timer and curse codes where based around the codes given by the professor (test_curses and timer.c)
+I havent used the ball.c code.
+
+Example of running in terminal: ./lander -g 10 -t -15 -f landscape.txt
+

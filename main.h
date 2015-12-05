@@ -23,6 +23,8 @@
 const char exec_name[] = "java -jar Sketchpad.jar";
 
 
+int exists(const char *fname);
+
 
 
 #endif
